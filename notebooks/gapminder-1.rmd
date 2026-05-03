@@ -119,6 +119,7 @@ ggplot(
     x = time,
     y = lex,
     lty = lex_is_forecast,
+    colour= name
   )
 ) +
   geom_line(lwd = 1.5) +
@@ -126,10 +127,15 @@ ggplot(
   scale_linetype_discrete(labels = c("Observation", "Forecast")) +
   labs(
     title = 'Switzerland and Ethiopia life expectancy over time',
-    subtitle = 'Gapminder publishe observations and forecasts',
+    subtitle = 'Gapminder published observations and forecasts',
     x = 'Year',
     y = 'Life expectancy (year)',
     lty = '',
+    colour = "Country",
+    caption = "Evolution of life expectancy in Switzerland and Ethiopia. 
+               The Switzerland in the 50's had the Lex of todays Lex in Ethiopia.
+               The Lex increases faster in Ethiopia narrowing the gap, 
+               the forecast suggests that this will continue"
   )
 
 ```
@@ -142,3 +148,49 @@ Goal:
  - circle size with the population
  - color with the region (4 levels)
 
+```{r}
+
+ggplot(
+  data = t.all |> filter(time == 2021),
+  mapping = aes(
+    x = gini,
+    y = child_mortality_0_5_year_olds_dying_per_1000_born,
+    size= pop,
+    colour= income_groups
+  )
+) +
+  geom_point(alpha = 0.7) +
+  theme_minimal(base_size = 16) +
+  scale_colour_manual(
+    values = c(
+      "low_income" = "#ee0e0aef",
+      "lower_middle_income" = "#fa9600",
+      "upper_middle_income" = "#3fd619ef",
+      "high_income" = "#0a9aeeef"
+    ),
+    labels = c(
+      "low_income" = "Low income",
+      "lower_middle_income" = "Lower middle income",
+      "upper_middle_income" = "Upper middle income",
+      "high_income" = "High income"
+    ),
+    breaks = c(
+      "low_income",
+      "lower_middle_income",
+      "upper_middle_income",
+      "high_income" 
+    )
+  ) +
+  labs(
+    title = 'Child death under 5 vs wealth inequality',
+    subtitle = 'Snapshot of year 2021 taken from Gapminder published observations',
+    x = 'Gini coefficient',
+    y = 'Child death under 5',
+    size = 'Population',
+    colour = 'Income Groups',
+    caption = "The death of childs under 5 years old is poorly related to 
+    the gini coefficient neither to the population.
+    However, there's a clear relation with the income group the country belongs to."
+  )
+
+```
