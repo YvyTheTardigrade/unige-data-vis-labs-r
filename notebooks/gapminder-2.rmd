@@ -90,5 +90,13 @@ ggplot(
     lwd = 2,
     position = "stack"
   ) +
-  theme_minimal(base_size = 22)
+  theme_minimal(base_size = 22)+
+  labs(
+    title="Rural Exodus in the world",
+    x = "Year",
+    y = "Population",
+  )+
+  scale_y_continuous(
+    labels=function(x) paste0(x/1e6, "M")
+  )
 ```

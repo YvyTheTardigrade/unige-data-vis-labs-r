@@ -1,0 +1,257 @@
+
+---
+title: "Visualisation des sites de priorité pour la faune et leurs aires respectives"
+output: pdf_document
+---
+
+```{r package_setup, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+knitr::opts_chunk$set(
+  fig.width = 9,   # increase width
+  fig.height = 9,
+  out.width = "100%"   # VERY IMPORTANT
+)
+
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(janitor)
+library(patchwork)
+library(forcats)
+```
+
+
+```{r data-loading}
+faune <- st_read("../../../DATAS/FFP_SITES_PRIORITAIRES_FAUNE.shp", quiet = TRUE) 
+communes <- st_read("../../../DATAS/commune/AGGLO_COMMUNES.shp", quiet = TRUE)
+```
+
+```{r geometry}
+
+centroids <- st_centroid(faune)
+
+coords <- st_coordinates(centroids)
+
+faune_clean <- faune %>%
+  filter(coords[,1] > 2000000)
+
+bbox_faune <- st_bbox(faune_clean)
+```
+
+# Sites proritaires pour la faune 
+## une vue géographique
+
+```{r fig.height=12}
+unicolor <- "#00f7ff"#"#fbff00"
+facettes <- ggplot() +
+  geom_sf(
+    data = communes,
+    fill = "grey35",
+    color= "grey30"
+  )+
+  geom_sf(
+    data = faune_clean #|>
+      #filter(GROUPE_TAX != "Mammifère") 
+      ,
+    aes(fill = GROUPE_TAX,  
+        color = GROUPE_TAX)
+        
+  ) +
+    coord_sf(
+    xlim = c(bbox_faune["xmin"], bbox_faune["xmax"]),
+    ylim = c(bbox_faune["ymin"], bbox_faune["ymax"]),
+    expand = FALSE
+  )+
+  scale_colour_manual(
+    values = c(
+      "Mammifère" = unicolor,
+      "Insecte" = unicolor,
+      "Mollusque" = unicolor,
+      "Reptiles" = unicolor,
+      "Oiseaux" = unicolor,
+      "mustélidé" = unicolor,
+      "Chiroptères" = unicolor
+    )
+  ) +
+    scale_fill_manual(
+    values = c(
+      "Mammifère" = unicolor,
+      "Insecte" = unicolor,
+      "Mollusque" = unicolor,
+      "Reptiles" = unicolor,
+      "Oiseaux" = unicolor,
+      "mustélidé" = unicolor,
+      "Chiroptères" = unicolor
+    )
+  ) +
+  facet_wrap(~GROUPE_TAX )+
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  ) +
+  theme(
+    plot.margin = margin(0,0,0,0),
+    panel.spacing = unit(1, "lines"),
+    strip.background = element_blank(),
+    strip.text = element_text(margin = margin(0,0,0,0)),
+    legend.position = "none"
+  )+
+  theme(
+    plot.margin = margin(30, 0, 0, 0)
+  )+
+  theme(
+    #plot.title = element_blank(),
+    #plot.title = element_text(size = 30),
+    #plot.subtitle = element_text(size = 20),
+
+    #axis.title.x = element_text(size = 50),
+    #axis.title.y = element_text(size = 50),
+    strip.text = element_text(size = 18),
+    axis.text.x = element_text(size = 9),
+    axis.text.y = element_text(size = 12)
+  )
+
+
+
+
+
+
+
+
+fusion <- ggplot() +
+  geom_sf(
+    data = communes,
+    fill = "grey20",
+    color= "grey15"
+  )+
+  geom_sf(
+    data = faune_clean|>
+      filter(! (GROUPE_TAX %in% c("Chiroptères","Insecte","Oiseaux","Reptiles"))) ,
+    aes(fill = GROUPE_TAX,  
+        color = GROUPE_TAX
+    )
+        
+  ) +
+    coord_sf(
+    xlim = c(2499000, 2515000), #c(2484000, 2515000),
+    ylim = c(1118000, 1125000), #c(1110000, 1130000),
+    expand = FALSE
+  )+
+scale_colour_manual(
+    values = c(
+      "Mammifère" = "#f700ff",
+      "Insecte" = NA,
+      "Mollusque" = "#00e1ff",
+      "Reptiles" = NA,
+      "Oiseaux" = NA,
+      "mustélidé" = "#01cc01",
+      "Chiroptères" = NA
+    )
+  ) +
+    scale_fill_manual(
+    values = c(
+      "Mammifère" = "#f700ff",
+      "Insecte" = NA,
+      "Mollusque" = "#00e1ff",
+      "Reptiles" = NA,
+      "Oiseaux" = NA,
+      "mustélidé" = "#01cc01",
+      "Chiroptères" = NA
+    )
+  ) +
+  labs(
+    fill = "Taxa"
+  ) +
+ # theme_minimal() + 
+  guides(
+    color = "none"
+  ) +
+  theme(
+    plot.margin =  margin(0, 0, 0, 0)
+  )+
+  theme(
+    #plot.title = element_blank()
+    #plot.title = element_text(size = 30),
+    #plot.subtitle = element_text(size = 20),
+
+    #axis.title.x = element_text(size = 50),
+    #axis.title.y = element_text(size = 50),
+
+    axis.text.x = element_text(size = 9),
+    axis.text.y = element_text(size = 12)
+  )
+
+(facettes / fusion) +
+  plot_layout(
+    heights = c(6, 6),
+  ) +
+  plot_annotation(
+    title = "Sites prioritaires pour la faune",
+    subtitle = "distribution par groupe taxonomique"
+  ) &
+  theme(
+    #plot.title = element_blank()
+    plot.title = element_text(size = 30),
+    plot.subtitle = element_text(size = 20),
+
+    #axis.title.x = element_text(size = 50),
+    #axis.title.y = element_text(size = 50),
+
+    axis.text.x = element_text(size = 9),
+    axis.text.y = element_text(size = 12)
+  )
+
+
+```
+
+### Distribution des aires par groupe taxonomique 
+
+```{r}
+area_by_taxa <- faune_clean |>
+  group_by(GROUPE_TAX) |>
+  summarise(total_area =  as.numeric(sum(st_area(geometry), na.rm = TRUE))) 
+
+
+```
+
+```{r}
+ggplot(
+  data = area_by_taxa,
+  mapping = aes(
+      x = total_area ,
+      y = forcats::fct_reorder(GROUPE_TAX, total_area)
+  )
+) +
+  # stem (line from 0 to value)
+  geom_segment(
+    aes(x = 0, xend = total_area, yend = GROUPE_TAX),
+    colour = "#2c7fb8"
+  ) +
+
+  # dot (value marker)
+  geom_point(
+    colour = "#41b6c4",
+    size = 3
+  ) +
+
+  #theme_minimal(base_size = 14) +
+
+  labs(
+    title = "Distribution de l'aire totale entre groupes taxonomiques",
+    x = expression("Aire (m"^2*")"),
+    y = NULL
+  ) +
+  scale_x_log10(
+    labels=function(x) paste0(x/1e3, "k")
+  ) +
+  theme(
+    plot.title = element_text(size = 20),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12)
+  )
+
+
+```
+
+
