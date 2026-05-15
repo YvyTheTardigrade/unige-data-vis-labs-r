@@ -39,10 +39,9 @@ faune_clean <- faune %>%
 bbox_faune <- st_bbox(faune_clean)
 ```
 
-# Sites proritaires pour la faune 
-## une vue géographique
 
-```{r fig.height=12}
+
+```{r fig.height=14}
 unicolor <- "#00f7ff"#"#fbff00"
 facettes <- ggplot() +
   geom_sf(
@@ -161,7 +160,8 @@ scale_colour_manual(
     )
   ) +
   labs(
-    fill = "Taxa"
+    fill = "Taxa",
+    subtitle = "\n\nZoom sur les régions prioritaires pour les mammifères"
   ) +
  # theme_minimal() + 
   guides(
@@ -182,13 +182,14 @@ scale_colour_manual(
     axis.text.y = element_text(size = 12)
   )
 
-(facettes / fusion) +
+(facettes #/ fusion
+) +
   plot_layout(
     heights = c(6, 6),
   ) +
   plot_annotation(
     title = "Sites prioritaires pour la faune",
-    subtitle = "distribution par groupe taxonomique"
+    subtitle = "distribution géographique des aires par groupe taxonomique"
   ) &
   theme(
     #plot.title = element_blank()
@@ -205,7 +206,17 @@ scale_colour_manual(
 
 ```
 
-### Distribution des aires par groupe taxonomique 
+## Commentaires techniques : 
+La difficulté avec ces données est la superposition des régions ainsi que la disparité des aires entre les groupes taxonomiques.
+La représentation des données sur une seule carte avec des couleurs distinctes ne permet pas d'apprécier la distribution spatiales des aires de chaque groupe , faute de 
+couleurs contrastantes. Il a donc été choisi de décomposer la visualisation en facettes pour chaque groupe 
+taxonomique afin de pouvoir très clairement distinguer leur différence de répartition. Le choix des couleurs a également été sujet à de nombreux
+essais, le fond foncé est celui qui permet le mieux de distinguer les points notamment pour les mustélidés , mais aussi pour les mammifères et les mollusques qui semblent autrement inexistants.
+La taille des labels et des légendes a été agrandi pour améliorer la lisibilité. Un zoom sur la région ou se trouve les mammifères a été tenté 
+pour montrer qu'ils sont bien présent mais cela causait une  surcharge visuelle puisque leurs aires restent quasiment invisibles dans le zoom.
+
+
+
 
 ```{r}
 area_by_taxa <- faune_clean |>
@@ -254,4 +265,9 @@ ggplot(
 
 ```
 
+## Commentaires techniques : 
+Ici on regarde les aires allouées à chaque groupe. Les mammifères et les mollusques étant fortement mis de côtés l'échelle a été mise 
+en log afin qu'ils apparaissent effetivement.  Les labels d'échelles sont réécrit avec un k en préfixe plutôt 
+qu'en écriture scientifique ce qui facilite la lecture. Les groupes taxonomiques ont été triés afin de pouvoir directement identifier les groupes
+qui sont les plus / moins priorisés et comparer quantitativement. 
 
